@@ -1,0 +1,235 @@
+<Window x:Class="VideoGenerator.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:VideoGenerator.UI"
+        Title="LTX Video Generator" Height="800" Width="1200"
+        Background="{StaticResource BackgroundBrush}"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Label Grid.Row="0" Content="LTX Video Generator" Style="{StaticResource HeaderLabel}"/>
+        
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left Panel - Generation Controls -->
+                <Border Grid.Column="0" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <!-- Model Section -->
+                        <Label Content="Model Configuration" Style="{StaticResource SectionLabel}"/>
+                        
+                        <Label Content="Model Path:" Style="{StaticResource FieldLabel}"/>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" 
+                                     Text="{Binding ModelPath}" 
+                                     Style="{StaticResource ModernTextBox}"/>
+                            <Button Grid.Column="2" 
+                                    Content="Browse..." 
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding BrowseModelPathCommand}"/>
+                            <Button Grid.Column="4" 
+                                    Style="{StaticResource SecondaryButton}"
+                                    Width="32"
+                                    Height="32"
+                                    ToolTip="Model Download Help"
+                                    Command="{Binding ShowModelDownloadHelpCommand}"
+                                    Content="?"
+                                    FontSize="16"
+                                    FontWeight="Bold"/>
+                        </Grid>
+                        
+                        <Button Content="{Binding IsModelLoaded, Converter={x:Static local:Converters.BoolToLoadModelText}}" 
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding LoadModelCommand}"
+                                Margin="0,0,0,24"/>
+                        
+                        <!-- Generation Parameters -->
+                        <Label Content="Generation Parameters" Style="{StaticResource SectionLabel}"/>
+                        
+                        <Label Content="Prompt:" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Prompt}" 
+                                 Style="{StaticResource ModernTextBox}"
+                                 Height="80"
+                                 TextWrapping="Wrap"
+                                 AcceptsReturn="True"
+                                 Margin="0,0,0,16"/>
+                        
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <Label Content="Duration (seconds):" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding DurationSeconds}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <Label Content="Steps:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Steps}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="4">
+                                <Label Content="Guidance Scale:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding GuidanceScale}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
+                                <Label Content="Width:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Width}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="2">
+                                <Label Content="Height:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Height}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="4">
+                                <Label Content="FPS:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Fps}" Style="{StaticResource ModernTextBox}"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Label Content="Seed (optional):" Style="{StaticResource FieldLabel}"/>
+                        <TextBox Text="{Binding Seed}" 
+                                 Style="{StaticResource ModernTextBox}"
+                                 Margin="0,0,0,16"/>
+                        
+
+                        
+                        <!-- Generation Controls -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Grid.Column="0"
+                                    Content="Generate Video"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding GenerateVideoCommand}"
+                                    IsEnabled="{Binding IsGenerating, Converter={x:Static local:Converters.InverseBoolConverter}}"/>
+                            
+                            <Button Grid.Column="2"
+                                    Content="Cancel"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding CancelGenerationCommand}"
+                                    Visibility="{Binding IsGenerating, Converter={x:Static local:Converters.BoolToVisibilityConverter}}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Right Panel - Status and History -->
+                <Border Grid.Column="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <!-- Status Section -->
+                        <Label Content="Status" Style="{StaticResource SectionLabel}"/>
+                        
+                        <TextBlock Text="{Binding StatusMessage}" 
+                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="0,0,0,8"/>
+                        
+                        <ProgressBar Value="{Binding ProgressValue}"
+                                     Maximum="100"
+                                     Style="{StaticResource ModernProgressBar}"
+                                     Visibility="{Binding IsGenerating, Converter={x:Static local:Converters.BoolToVisibilityConverter}}"
+                                     Margin="0,0,0,16"/>
+                        
+                        <!-- Quick Actions -->
+                        <Label Content="Quick Actions" Style="{StaticResource SectionLabel}"/>
+                        
+                        <Button Content="Open Last Video"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding OpenGeneratedVideoCommand}"
+                                IsEnabled="{Binding LastGeneratedVideoPath, Converter={x:Static local:Converters.StringToBoolConverter}}"
+                                Margin="0,0,0,8"/>
+                        
+                        <Button Content="Open Output Folder"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding OpenOutputDirectoryCommand}"
+                                Margin="0,0,0,16"/>
+                        
+                        <!-- Generation History -->
+                        <Label Content="Recent Generations" Style="{StaticResource SectionLabel}"/>
+                        
+                        <ListBox ItemsSource="{Binding GenerationHistory}"
+                                 MaxHeight="300"
+                                 Background="Transparent"
+                                 BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{StaticResource SurfaceBrush}"
+                                            BorderBrush="#E2E8F0"
+                                            BorderThickness="1"
+                                            CornerRadius="4"
+                                            Padding="12"
+                                            Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Prompt}" 
+                                                       FontWeight="SemiBold"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="200"/>
+                                            <TextBlock Text="{Binding GeneratedAt, StringFormat='yyyy-MM-dd HH:mm:ss'}" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12"/>
+                                            <TextBlock Text="{Binding ProcessingTime, StringFormat='Duration: {0:mm\\:ss}'}" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                       FontSize="12"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+        
+        <!-- Footer -->
+        <Border Grid.Row="2" 
+                Background="{StaticResource SurfaceBrush}" 
+                BorderBrush="#E2E8F0" 
+                BorderThickness="0,1,0,0"
+                Padding="0,8,0,0">
+            <TextBlock Text="Ready to generate amazing videos with LTX Video model" 
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+        </Border>
+    </Grid>
+</Window> 

@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Logging;
+using VideoGenerator.Services.Abstractions;
+
 namespace VideoGenerator.Services;
 
 public class ModelManager : IModelManager

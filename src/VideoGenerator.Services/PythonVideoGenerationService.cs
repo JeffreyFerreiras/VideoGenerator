@@ -1,3 +1,8 @@
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using VideoGenerator.Models;
+using VideoGenerator.Services.Abstractions;
+
 namespace VideoGenerator.Services;
 
 // Simplified service that delegates to specialized components

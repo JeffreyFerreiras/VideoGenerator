@@ -1,3 +1,5 @@
+using VideoGenerator.Models;
+
 public interface IVideoGenerationService
 {
     Task<VideoGenerationResult> GenerateVideoAsync(VideoGenerationRequest request, CancellationToken cancellationToken = default);

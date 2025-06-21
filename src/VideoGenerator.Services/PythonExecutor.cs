@@ -5,11 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using VideoGenerator.Models;
+using VideoGenerator.Services.Abstractions;
 
 namespace VideoGenerator.Services;
 
 public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, IDisposable
 {
+    private readonly ILogger<PythonExecutor> _logger = logger;
     public event EventHandler<VideoGenerationProgressEventArgs>? ProgressChanged;
 
     public async Task ExecuteAsync(PythonGenerationRequest request, CancellationToken cancellationToken)

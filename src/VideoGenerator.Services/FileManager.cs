@@ -1,6 +1,6 @@
-namespace VideoGenerator.Services;
+using VideoGenerator.Services.Abstractions;
 
-// Interfaces are now defined in VideoGenerator.Services.Abstractions
+namespace VideoGenerator.Services;
 
 // Simple, focused implementations
 public class FileManager : IFileManager

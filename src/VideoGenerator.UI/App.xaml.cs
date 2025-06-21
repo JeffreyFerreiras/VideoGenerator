@@ -1,12 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Windows;
-using VideoGenerator.Core.Interfaces;
-using VideoGenerator.Services;
 using VideoGenerator.UI.ViewModels;
-using Serilog;
 
 namespace VideoGenerator.UI;
 

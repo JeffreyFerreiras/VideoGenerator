@@ -1,5 +1,3 @@
-using System;
-using System.Windows;
 using VideoGenerator.UI.ViewModels;
 
 namespace VideoGenerator.UI;

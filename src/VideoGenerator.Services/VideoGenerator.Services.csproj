@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoGenerator.Core\VideoGenerator.Core.csproj" />
+    <ProjectReference Include="..\VideoGenerator.Models\VideoGenerator.Models.csproj" />
+    <ProjectReference Include="..\VideoGenerator.Services.Abstractions\VideoGenerator.Services.Abstractions.csproj" />
   </ItemGroup>
 
 </Project> 

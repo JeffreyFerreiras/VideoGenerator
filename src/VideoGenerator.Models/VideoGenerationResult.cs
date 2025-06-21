@@ -1,4 +1,4 @@
-namespace VideoGenerator.Core.Models;
+namespace VideoGenerator.Models;
 
 public class VideoGenerationResult
 {

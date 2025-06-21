@@ -1,14 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.Logging;
-using Microsoft.Win32;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Windows;
-using VideoGenerator.Core.Interfaces;
-using VideoGenerator.Core.Models;
-
 namespace VideoGenerator.UI.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject

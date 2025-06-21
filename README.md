@@ -102,7 +102,7 @@ The application will automatically:
 The application follows clean architecture principles with dependency injection:
 
 ```
-├── VideoGenerator.Core/          # Domain models and interfaces
+├── VideoGenerator.Models/        # Domain models and interfaces
 ├── VideoGenerator.Services/      # Python interop and business logic
 ├── VideoGenerator.UI/           # WPF presentation layer
 │   ├── ViewModels/             # MVVM view models

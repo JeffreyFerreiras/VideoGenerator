@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoGenerator.Core\VideoGenerator.Core.csproj" />
+    <ProjectReference Include="..\VideoGenerator.Models\VideoGenerator.Models.csproj" />
     <ProjectReference Include="..\VideoGenerator.Services\VideoGenerator.Services.csproj" />
   </ItemGroup>
 

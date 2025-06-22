@@ -1,3 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using System.IO;
+using System.Windows;
+using VideoGenerator.Services;
 using VideoGenerator.UI.ViewModels;
 
 namespace VideoGenerator.UI;

@@ -19,9 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VideoGenerator.Services\VideoGenerator.Services.csproj" />
-    <ProjectReference Include="..\VideoGenerator.Services.Abstractions\VideoGenerator.Services.Abstractions.csproj" />
-    <ProjectReference Include="..\VideoGenerator.Models\VideoGenerator.Models.csproj" />
+    <ProjectReference Include="..\..\src\VideoGenerator.Services\VideoGenerator.Services.csproj" />
+    <ProjectReference Include="..\..\src\VideoGenerator.Services.Abstractions\VideoGenerator.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\VideoGenerator.Models\VideoGenerator.Models.csproj" />
   </ItemGroup>
 
 </Project>

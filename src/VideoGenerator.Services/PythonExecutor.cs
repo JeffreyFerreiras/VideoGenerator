@@ -37,9 +37,10 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
     {
         var appDir = AppDomain.CurrentDomain.BaseDirectory;
         var pythonDir = Path.Combine(appDir, "python");
-        
-        Directory.CreateDirectory(pythonDir);
-
+        if (!Directory.Exists(pythonDir))
+        {
+            throw new DirectoryNotFoundException($"Python directory not found: {pythonDir}");
+        }
         return Path.Combine(pythonDir, "ltx_video_generator.py");
     }
 

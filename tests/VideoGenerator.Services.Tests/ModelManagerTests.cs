@@ -34,9 +34,9 @@ public class ModelManagerTests
     }
 
     [Test]
-    public void LoadAsync_ThrowsArgumentException_WhenModelPathIsNull()
+    public void LoadAsync_ThrowsArgumentNullException_WhenModelPathIsNull()
     {
-        Assert.ThrowsAsync<ArgumentException>(() => _modelManager.LoadAsync(null!));
+        Assert.ThrowsAsync<ArgumentNullException>(() => _modelManager.LoadAsync(null!));
     }
 
     [Test]

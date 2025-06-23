@@ -160,6 +160,34 @@
                                  Margin="0,0,0,16"
                                  ToolTip="A seed is a number that controls randomness in video generation. Using the same seed with identical settings will produce the same result, making it useful for reproducible generations. Leave empty for random results, or enter a number (e.g., 12345) to ensure consistent output across multiple runs."/>
                         
+                        <!-- Input Image Section -->
+                        <Label Content="Input Image (optional):" Style="{StaticResource FieldLabel}"
+                               ToolTip="Select an input image to generate video from. Leave empty for text-to-video generation. When provided, the model will use this image as the first frame and animate from it."/>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" 
+                                     Text="{Binding InputImagePath}" 
+                                     Style="{StaticResource ModernTextBox}"
+                                     IsReadOnly="True"
+                                     ToolTip="Path to the input image for image-to-video generation"/>
+                            <Button Grid.Column="2" 
+                                    Content="Browse..." 
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding BrowseInputImageCommand}"
+                                    ToolTip="Select an input image file"/>
+                            <Button Grid.Column="4" 
+                                    Content="Clear" 
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding ClearInputImageCommand}"
+                                    ToolTip="Clear the input image for text-to-video generation"
+                                    Visibility="{Binding InputImagePath, Converter={x:Static local:Converters.StringToBoolToVisibilityConverter}}"/>
+                        </Grid>
 
                         
                         <!-- Generation Controls -->

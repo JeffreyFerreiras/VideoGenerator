@@ -57,6 +57,9 @@ public partial class MainWindowViewModel : ObservableObject
 
     [ObservableProperty]
     private int _fps = 24;
+    
+    [ObservableProperty]
+    private string _inputImagePath = string.Empty;
 
     public ObservableCollection<ResolutionOption> ResolutionOptions { get; } = [];
 
@@ -140,6 +143,7 @@ public partial class MainWindowViewModel : ObservableObject
         GuidanceScale = settings.GuidanceScale;
         Seed = settings.Seed;
         Fps = settings.Fps;
+        InputImagePath = settings.LastInputImagePath;
         
         // Find and set the selected resolution
         var savedResolution = ResolutionOptions.FirstOrDefault(r => r.Name == settings.SelectedResolutionName);
@@ -199,6 +203,7 @@ public partial class MainWindowViewModel : ObservableObject
                 settings.Height = Height;
                 settings.Fps = Fps;
                 settings.SelectedResolutionName = SelectedResolution?.Name ?? "";
+                settings.LastInputImagePath = InputImagePath;
                 
                 // Application settings
                 settings.OutputDirectory = OutputDirectory;
@@ -326,6 +331,40 @@ public partial class MainWindowViewModel : ObservableObject
         MessageBox.Show(helpMessage, "Model Download Guide", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
+    [RelayCommand]
+    private void BrowseInputImage()
+    {
+        var openFileDialog = new OpenFileDialog
+        {
+            Title = "Select Input Image for Video Generation",
+            Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.webp)|*.jpg;*.jpeg;*.png;*.bmp;*.tiff;*.webp|All Files (*.*)|*.*",
+            InitialDirectory = !string.IsNullOrEmpty(InputImagePath) 
+                ? Path.GetDirectoryName(InputImagePath) 
+                : Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+        };
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            InputImagePath = openFileDialog.FileName;
+            StatusMessage = "Input image selected for image-to-video generation.";
+            _logger.LogInformation("Input image path updated to: {InputImagePath}", InputImagePath);
+            
+            // Save the updated input image path
+            _ = SaveCurrentSettingsAsync();
+        }
+    }
+
+    [RelayCommand]
+    private void ClearInputImage()
+    {
+        InputImagePath = string.Empty;
+        StatusMessage = "Input image cleared. Will use text-to-video generation.";
+        _logger.LogInformation("Input image path cleared");
+        
+        // Save the updated settings
+        _ = SaveCurrentSettingsAsync();
+    }
+
     [RelayCommand(CanExecute = nameof(CanGenerateVideo))]
     private async Task GenerateVideoAsync()
     {
@@ -353,7 +392,8 @@ public partial class MainWindowViewModel : ObservableObject
                 Width = Width,
                 Height = Height,
                 Fps = Fps,
-                OutputDirectory = OutputDirectory
+                OutputDirectory = OutputDirectory,
+                InputImagePath = string.IsNullOrWhiteSpace(InputImagePath) ? null : InputImagePath
             };
 
             _logger.LogInformation("Starting video generation with prompt: {Prompt}", Prompt);

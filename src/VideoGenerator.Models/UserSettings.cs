@@ -19,6 +19,7 @@ public class UserSettings
     public int Height { get; set; } = 1024;
     public int Fps { get; set; } = 24;
     public string SelectedResolutionName { get; set; } = "Portrait (9:16) - TikTok/Instagram";
+    public string LastInputImagePath { get; set; } = string.Empty;
     
     // Application Settings
     public string OutputDirectory { get; set; } = string.Empty;

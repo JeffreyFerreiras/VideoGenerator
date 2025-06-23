@@ -28,4 +28,6 @@ public class VideoGenerationRequest
     public int Fps { get; set; } = 30;  // Higher FPS for smooth TikTok content
 
     public string OutputDirectory { get; set; } = string.Empty;
+    
+    public string? InputImagePath { get; set; }
 } 

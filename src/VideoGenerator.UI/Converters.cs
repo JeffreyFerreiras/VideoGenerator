@@ -10,6 +10,7 @@ public static class Converters
     public static readonly IValueConverter InverseBoolToVisibilityConverter = new InverseBoolToVisibilityValueConverter();
     public static readonly IValueConverter InverseBoolConverter = new InverseBoolValueConverter();
     public static readonly IValueConverter StringToBoolConverter = new StringToBoolValueConverter();
+    public static readonly IValueConverter StringToBoolToVisibilityConverter = new StringToBoolToVisibilityValueConverter();
     public static readonly IValueConverter BoolToLoadModelText = new BoolToLoadModelTextConverter();
 }
 
@@ -59,6 +60,20 @@ public class StringToBoolValueConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         return !string.IsNullOrEmpty(value as string);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotSupportedException();
+    }
+}
+
+public class StringToBoolToVisibilityValueConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        var hasValue = !string.IsNullOrEmpty(value as string);
+        return hasValue ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

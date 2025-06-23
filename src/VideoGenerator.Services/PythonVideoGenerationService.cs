@@ -46,7 +46,8 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
         
         try
         {
-            _logger.LogInformation("Starting video generation with prompt: {Prompt}", request.Prompt);
+            var generationType = !string.IsNullOrEmpty(request.InputImagePath) ? "image-to-video" : "text-to-video";
+            _logger.LogInformation("Starting {GenerationType} generation with prompt: {Prompt}", generationType, request.Prompt);
             
             var outputPath = _fileManager.GenerateOutputPath(request.OutputDirectory);
             var pythonRequest = CreatePythonRequest(request, outputPath);
@@ -86,11 +87,13 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
                 Seed = request.Seed,
                 Width = request.Width,
                 Height = request.Height,
-                Fps = request.Fps
+                Fps = request.Fps,
+                InputImage = request.InputImagePath
             };
             
-            _logger.LogInformation("Created Python request - Model: {ModelPath}, Output: {OutputPath}, Prompt: {Prompt}", 
-                modelPath, outputPath, request.Prompt);
+            var hasInputImage = !string.IsNullOrEmpty(request.InputImagePath);
+            _logger.LogInformation("Created Python request - Model: {ModelPath}, Output: {OutputPath}, Prompt: {Prompt}, InputImage: {HasInputImage}", 
+                modelPath, outputPath, request.Prompt, hasInputImage ? request.InputImagePath : "None");
             
             return pythonRequest;
         }

@@ -89,19 +89,23 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="2">
-                                <Label Content="Steps:" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Steps}" Style="{StaticResource ModernTextBox}"/>
+                                <Label Content="Steps:" Style="{StaticResource FieldLabel}" 
+                                       ToolTip="Number of denoising steps. Higher values (40-100) produce better quality but take longer. Lower values (20-40) are faster but may have lower quality."/>
+                                <TextBox Text="{Binding Steps}" Style="{StaticResource ModernTextBox}"
+                                         ToolTip="Number of denoising steps. Higher values (40-100) produce better quality but take longer. Lower values (20-40) are faster but may have lower quality."/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="4">
-                                <Label Content="Guidance Scale:" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding GuidanceScale}" Style="{StaticResource ModernTextBox}"/>
+                                <Label Content="Guidance Scale:" Style="{StaticResource FieldLabel}"
+                                       ToolTip="Controls how closely the model follows the prompt. Higher values (7-15) follow the prompt more strictly but may reduce creativity. Lower values (3-7) allow more creative freedom."/>
+                                <TextBox Text="{Binding GuidanceScale}" Style="{StaticResource ModernTextBox}"
+                                         ToolTip="Controls how closely the model follows the prompt. Higher values (7-15) follow the prompt more strictly but may reduce creativity. Lower values (3-7) allow more creative freedom."/>
                             </StackPanel>
                         </Grid>
                         
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="16"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="16"/>
@@ -109,16 +113,32 @@
                             </Grid.ColumnDefinitions>
                             
                             <StackPanel Grid.Column="0">
-                                <Label Content="Width:" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Width}" Style="{StaticResource ModernTextBox}"/>
+                                <Label Content="Resolution:" Style="{StaticResource FieldLabel}"
+                                       ToolTip="Select from predefined resolutions optimized for different platforms"/>
+                                <ComboBox ItemsSource="{Binding ResolutionOptions}"
+                                          SelectedItem="{Binding SelectedResolution}"
+                                          DisplayMemberPath="Name"
+                                          Style="{StaticResource ModernComboBox}"
+                                          ToolTip="{Binding SelectedResolution.Description}"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="2">
-                                <Label Content="Height:" Style="{StaticResource FieldLabel}"/>
-                                <TextBox Text="{Binding Height}" Style="{StaticResource ModernTextBox}"/>
+                                <Label Content="Width:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Width}" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="4">
+                                <Label Content="Height:" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Height}" Style="{StaticResource ModernTextBox}" IsReadOnly="True"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <StackPanel Grid.Column="0">
                                 <Label Content="FPS:" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding Fps}" Style="{StaticResource ModernTextBox}"/>
                             </StackPanel>

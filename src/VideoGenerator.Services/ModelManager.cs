@@ -31,8 +31,12 @@ public class ModelManager : IModelManager
         {
             try
             {
+                _logger.LogInformation("Attempting to load model from: {ModelPath}", modelPath);
+                
                 if (!IsValidModelPath(modelPath))
                 {
+                    _logger.LogError("Model path validation failed: {ModelPath}", modelPath);
+                    _isLoaded = false;
                     return Task.FromResult(false);
                 }
 
@@ -44,7 +48,7 @@ public class ModelManager : IModelManager
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to load model from: {ModelPath}", modelPath);
+                _logger.LogError(ex, "Exception occurred while loading model from: {ModelPath}", modelPath);
                 _isLoaded = false;
                 return Task.FromResult(false);
             }
@@ -55,7 +59,7 @@ public class ModelManager : IModelManager
     {
         lock (_lock)
         {
-            return _modelPath ?? throw new InvalidOperationException("Model is not loaded");
+            return _modelPath ?? throw new InvalidOperationException("Model is not loaded. Please load a model first using the 'Load Model' button in the UI.");
         }
     }
 

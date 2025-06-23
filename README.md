@@ -19,8 +19,10 @@ A modern C# WPF application for generating videos using the LTX Video model. Thi
 
 ### Python Requirements
 - Python 3.9 or later
-- CUDA-capable GPU (recommended for faster generation)
-- At least 8GB VRAM for optimal performance
+- **CUDA-capable GPU (REQUIRED for reasonable performance)**
+  - NVIDIA RTX 20-series or newer recommended
+  - At least 8GB VRAM (16GB+ recommended for high quality)
+  - CUDA 11.8 or 12.1 compatible drivers
 
 ## Setup Instructions
 
@@ -65,6 +67,20 @@ python src/python/setup_python.py
 # Run the application
 dotnet run --project src/VideoGenerator.UI
 ```
+
+**GPU Setup (CRITICAL for Performance):**
+```bash
+# Install CUDA-enabled PyTorch (REQUIRED for fast generation)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# Install other dependencies
+pip install -r python_requirements.txt
+
+# Test GPU is working
+python -c "import torch; print('CUDA available:', torch.cuda.is_available()); print('GPU:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'None')"
+```
+
+⚠️ **IMPORTANT**: Without GPU acceleration, video generation will take 30-60+ minutes instead of 2-5 minutes!
 
 The application will automatically:
 - Check if Python is installed
@@ -137,10 +153,23 @@ Videos are saved to the same directory as the model by default. You can specify 
 
 ## Performance Tips
 
-1. **GPU Acceleration**: Ensure CUDA is properly installed for GPU acceleration
-2. **VRAM Usage**: Monitor GPU memory usage; reduce batch size if needed
-3. **Storage**: Ensure sufficient disk space for generated videos
-4. **Steps vs Speed**: Lower step counts generate faster but may reduce quality
+1. **🚀 GPU Acceleration (CRITICAL)**: 
+   - **MUST HAVE**: CUDA-enabled PyTorch installation
+   - **CPU Generation**: 30-60+ minutes per video (unusably slow)
+   - **GPU Generation**: 2-5 minutes per video (acceptable)
+   - Verify with: `python -c "import torch; print(torch.cuda.is_available())"`
+
+2. **VRAM Usage**: 
+   - Monitor GPU memory usage; reduce resolution if needed
+   - 8GB VRAM: 512x512 or 720p
+   - 16GB+ VRAM: 1080p or higher resolutions
+
+3. **Generation Settings**:
+   - **Steps**: 20-30 for preview, 50+ for final quality
+   - **Resolution**: Start with 576x1024 (TikTok) for best speed/quality balance
+   - **Duration**: 3-5 seconds recommended
+
+4. **Storage**: Ensure sufficient disk space for generated videos
 
 ## Troubleshooting
 

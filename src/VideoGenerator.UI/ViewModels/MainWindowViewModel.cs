@@ -9,6 +9,14 @@ using VideoGenerator.Models;
 
 namespace VideoGenerator.UI.ViewModels;
 
+public class ResolutionOption
+{
+    public string Name { get; set; } = string.Empty;
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public string Description { get; set; } = string.Empty;
+}
+
 public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IVideoGenerationService _videoGenerationService;
@@ -43,7 +51,12 @@ public partial class MainWindowViewModel : ObservableObject
     private int _height = 1024; // Vertical format for TikTok
 
     [ObservableProperty]
+    private ResolutionOption? _selectedResolution;
+
+    [ObservableProperty]
     private int _fps = 30;  // Higher FPS for smooth TikTok content
+
+    public ObservableCollection<ResolutionOption> ResolutionOptions { get; } = new();
 
     [ObservableProperty]
     private string _outputDirectory = string.Empty;
@@ -67,6 +80,9 @@ public partial class MainWindowViewModel : ObservableObject
         _videoGenerationService = videoGenerationService ?? throw new ArgumentNullException(nameof(videoGenerationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+        // Initialize resolution options
+        InitializeResolutionOptions();
+
         // Subscribe to progress events
         _videoGenerationService.ProgressChanged += OnVideoGenerationProgressChanged;
 
@@ -76,6 +92,18 @@ public partial class MainWindowViewModel : ObservableObject
         
         // Ensure the videos directory exists
         Directory.CreateDirectory(OutputDirectory);
+    }
+
+    private void InitializeResolutionOptions()
+    {
+        ResolutionOptions.Add(new ResolutionOption { Name = "TikTok (9:16)", Width = 576, Height = 1024, Description = "576x1024 - Optimized for vertical social media" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "720p (16:9)", Width = 1280, Height = 720, Description = "1280x720 - Standard HD horizontal" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "1080p (16:9)", Width = 1920, Height = 1080, Description = "1920x1080 - Full HD horizontal" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "4K (16:9)", Width = 3840, Height = 2160, Description = "3840x2160 - Ultra HD horizontal" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "Instagram Square", Width = 1024, Height = 1024, Description = "1024x1024 - Perfect square format" });
+        
+        // Set TikTok as default
+        SelectedResolution = ResolutionOptions[0];
     }
 
     [RelayCommand]
@@ -339,5 +367,14 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnIsGeneratingChanged(bool value)
     {
         GenerateVideoCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnSelectedResolutionChanged(ResolutionOption? value)
+    {
+        if (value != null)
+        {
+            Width = value.Width;
+            Height = value.Height;
+        }
     }
 } 

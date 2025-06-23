@@ -70,32 +70,58 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
 
     private PythonGenerationRequest CreatePythonRequest(VideoGenerationRequest request, string outputPath)
     {
-        return new PythonGenerationRequest
+        try
         {
-            ModelPath = _modelManager.GetModelPath(),
-            Prompt = request.Prompt,
-            OutputPath = outputPath,
-            DurationSeconds = request.DurationSeconds,
-            Steps = request.Steps,
-            GuidanceScale = request.GuidanceScale,
-            Seed = request.Seed,
-            Width = request.Width,
-            Height = request.Height,
-            Fps = request.Fps
-        };
+            var modelPath = _modelManager.GetModelPath();
+            _logger.LogDebug("Using model path: {ModelPath}", modelPath);
+            
+            var pythonRequest = new PythonGenerationRequest
+            {
+                ModelPath = modelPath,
+                Prompt = request.Prompt,
+                OutputPath = outputPath,
+                DurationSeconds = request.DurationSeconds,
+                Steps = request.Steps,
+                GuidanceScale = request.GuidanceScale,
+                Seed = request.Seed,
+                Width = request.Width,
+                Height = request.Height,
+                Fps = request.Fps
+            };
+            
+            _logger.LogInformation("Created Python request - Model: {ModelPath}, Output: {OutputPath}, Prompt: {Prompt}", 
+                modelPath, outputPath, request.Prompt);
+            
+            return pythonRequest;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create Python request. Model may not be loaded or path is invalid");
+            throw;
+        }
     }
 
     private VideoGenerationResult CreateSuccessResult(string outputPath, VideoGenerationRequest request, TimeSpan elapsed)
     {
-        if (!File.Exists(outputPath))
+        try
         {
-            return VideoGenerationResult.Failure("Generated video file not found");
-        }
+            if (!File.Exists(outputPath))
+            {
+                _logger.LogError("Generated video file not found at expected path: {OutputPath}", outputPath);
+                return VideoGenerationResult.Failure("Generated video file not found");
+            }
 
-        var fileInfo = new FileInfo(outputPath);
-        _logger.LogInformation("Video generation completed successfully. File size: {FileSize} bytes", fileInfo.Length);
-        
-        return VideoGenerationResult.Success(outputPath, request.Prompt, elapsed, fileInfo.Length);
+            var fileInfo = new FileInfo(outputPath);
+            _logger.LogInformation("Video generation completed successfully. File: {OutputPath}, Size: {FileSize} bytes, Duration: {Duration}", 
+                outputPath, fileInfo.Length, elapsed);
+            
+            return VideoGenerationResult.Success(outputPath, request.Prompt, elapsed, fileInfo.Length);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error validating generated video file: {OutputPath}", outputPath);
+            return VideoGenerationResult.Failure($"Error accessing generated video file: {ex.Message}");
+        }
     }
 
     private void OnPythonExecutorProgressChanged(object? sender, VideoGenerationProgressEventArgs e)

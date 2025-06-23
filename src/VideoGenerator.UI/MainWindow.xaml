@@ -29,7 +29,7 @@
                     Height="32"
                     ToolTip="Model Download Help - Click for detailed instructions on downloading the LTX Video model"
                     Command="{Binding ShowModelDownloadHelpCommand}"
-                    Content="?"
+                    Content="ℹ️"
                     FontSize="16"
                     FontWeight="Bold"
                     VerticalAlignment="Center"

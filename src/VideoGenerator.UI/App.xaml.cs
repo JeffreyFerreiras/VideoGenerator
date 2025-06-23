@@ -21,15 +21,7 @@ public partial class App : Application
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             _host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
-                {
-                    // Register services
-                    services.AddLogging();
-                    services.AddSingleton<IVideoGenerationService, PythonVideoGenerationService>();
-                    
-                    // Register ViewModels
-                    services.AddTransient<MainWindowViewModel>();
-                })
+                .AddVideoGeneratorUI()
                 .UseSerilog((hostingContext, loggerConfiguration) =>
                 {
                     var logDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs");

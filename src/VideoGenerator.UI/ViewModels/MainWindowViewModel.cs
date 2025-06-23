@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 using VideoGenerator.Models;
+using VideoGenerator.Services.Abstractions;
 
 namespace VideoGenerator.UI.ViewModels;
 
@@ -21,6 +22,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IVideoGenerationService _videoGenerationService;
     private readonly ILogger<MainWindowViewModel> _logger;
+    private readonly IUserSettingsService _userSettingsService;
     private CancellationTokenSource? _cancellationTokenSource;
 
     [ObservableProperty]
@@ -30,13 +32,13 @@ public partial class MainWindowViewModel : ObservableObject
     private bool _isModelLoaded = false;
 
     [ObservableProperty]
-    private string _prompt = "A cute fluffy orange kitten playing with a colorful ball of yarn in a cozy living room, soft natural lighting, adorable and playful movement";
+    private string _prompt = "A cute orange kitten playing with a ball of yarn";
 
     [ObservableProperty]
-    private int _durationSeconds = 5;
+    private int _durationSeconds = 2;  // Reduced to 2 seconds for faster generation
 
     [ObservableProperty]
-    private int _steps = 50;
+    private int _steps = 25;  // Reduced to 25 steps for faster generation (good balance of quality/speed)
 
     [ObservableProperty]
     private double _guidanceScale = 7.5;
@@ -45,18 +47,18 @@ public partial class MainWindowViewModel : ObservableObject
     private string _seed = string.Empty;
 
     [ObservableProperty]
-    private int _width = 576;  // 9:16 aspect ratio for TikTok (576x1024)
-
+    private int _width = 512; 
+    
     [ObservableProperty]
-    private int _height = 1024; // Vertical format for TikTok
+    private int _height = 512;
 
     [ObservableProperty]
     private ResolutionOption? _selectedResolution;
 
     [ObservableProperty]
-    private int _fps = 30;  // Higher FPS for smooth TikTok content
+    private int _fps = 24;
 
-    public ObservableCollection<ResolutionOption> ResolutionOptions { get; } = new();
+    public ObservableCollection<ResolutionOption> ResolutionOptions { get; } = [];
 
     [ObservableProperty]
     private string _outputDirectory = string.Empty;
@@ -73,12 +75,13 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string? _lastGeneratedVideoPath;
 
-    public ObservableCollection<VideoGenerationResult> GenerationHistory { get; } = new();
+    public ObservableCollection<VideoGenerationResult> GenerationHistory { get; } = [];
 
-    public MainWindowViewModel(IVideoGenerationService videoGenerationService, ILogger<MainWindowViewModel> logger)
+    public MainWindowViewModel(IVideoGenerationService videoGenerationService, ILogger<MainWindowViewModel> logger, IUserSettingsService userSettingsService)
     {
         _videoGenerationService = videoGenerationService ?? throw new ArgumentNullException(nameof(videoGenerationService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _userSettingsService = userSettingsService ?? throw new ArgumentNullException(nameof(userSettingsService));
 
         // Initialize resolution options
         InitializeResolutionOptions();
@@ -86,24 +89,132 @@ public partial class MainWindowViewModel : ObservableObject
         // Subscribe to progress events
         _videoGenerationService.ProgressChanged += OnVideoGenerationProgressChanged;
 
-        // Set output directory to videos folder in build directory
+        // Load user settings and apply them
+        _ = InitializeUserSettingsAsync();
+    }
+
+    private void InitializeResolutionOptions()
+    {
+        // Add resolutions in order of generation speed (fastest first)
+        ResolutionOptions.Add(new ResolutionOption { Name = "Test (Fast)", Width = 512, Height = 512, Description = "512x512 - Optimized for quick testing and iteration" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "TikTok (9:16)", Width = 576, Height = 1024, Description = "576x1024 - Optimized for vertical social media" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "Instagram Square", Width = 1024, Height = 1024, Description = "1024x1024 - Perfect square format" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "720p (16:9)", Width = 1280, Height = 720, Description = "1280x720 - Standard HD horizontal" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "1080p (16:9)", Width = 1920, Height = 1080, Description = "1920x1080 - Full HD horizontal" });
+        ResolutionOptions.Add(new ResolutionOption { Name = "4K (16:9)", Width = 3840, Height = 2160, Description = "3840x2160 - Ultra HD horizontal (very slow)" });
+        
+        // Set Test (Fast) as default for quick generation
+        SelectedResolution = ResolutionOptions[0];
+    }
+
+    private async Task InitializeUserSettingsAsync()
+    {
+        try
+        {
+            _logger.LogInformation("Loading user settings...");
+            var settings = await _userSettingsService.LoadSettingsAsync();
+            
+            // Apply loaded settings to ViewModel properties
+            ApplyUserSettings(settings);
+            
+            _logger.LogInformation("User settings loaded and applied successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading user settings. Using defaults.");
+            // Continue with default values if settings load fails
+            SetDefaultSettings();
+        }
+    }
+
+    private void ApplyUserSettings(UserSettings settings)
+    {
+        // Model configuration
+        ModelPath = settings.ModelPath;
+        IsModelLoaded = settings.IsModelLoaded;
+        
+        // Generation parameters
+        Prompt = settings.LastPrompt;
+        DurationSeconds = settings.DurationSeconds;
+        Steps = settings.Steps;
+        GuidanceScale = settings.GuidanceScale;
+        Seed = settings.Seed;
+        Fps = settings.Fps;
+        
+        // Find and set the selected resolution
+        var savedResolution = ResolutionOptions.FirstOrDefault(r => r.Name == settings.SelectedResolutionName);
+        if (savedResolution != null)
+        {
+            SelectedResolution = savedResolution;
+        }
+        else
+        {
+            // If saved resolution not found, update dimensions directly
+            Width = settings.Width;
+            Height = settings.Height;
+        }
+        
+        // Output directory
+        OutputDirectory = string.IsNullOrEmpty(settings.OutputDirectory) 
+            ? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "videos")
+            : settings.OutputDirectory;
+        
+        // Ensure the output directory exists
+        Directory.CreateDirectory(OutputDirectory);
+        
+        _logger.LogDebug("Applied user settings: Model={ModelPath}, Prompt={Prompt}, Resolution={Resolution}", 
+            ModelPath, Prompt, SelectedResolution?.Name);
+    }
+
+    private void SetDefaultSettings()
+    {
+        // Set default output directory to videos folder in build directory
         var appDir = AppDomain.CurrentDomain.BaseDirectory;
         OutputDirectory = Path.Combine(appDir, "videos");
         
         // Ensure the videos directory exists
         Directory.CreateDirectory(OutputDirectory);
+        
+        // Other defaults are already set by the property initializers
+        _logger.LogInformation("Applied default settings");
     }
 
-    private void InitializeResolutionOptions()
+    private async Task SaveCurrentSettingsAsync()
     {
-        ResolutionOptions.Add(new ResolutionOption { Name = "TikTok (9:16)", Width = 576, Height = 1024, Description = "576x1024 - Optimized for vertical social media" });
-        ResolutionOptions.Add(new ResolutionOption { Name = "720p (16:9)", Width = 1280, Height = 720, Description = "1280x720 - Standard HD horizontal" });
-        ResolutionOptions.Add(new ResolutionOption { Name = "1080p (16:9)", Width = 1920, Height = 1080, Description = "1920x1080 - Full HD horizontal" });
-        ResolutionOptions.Add(new ResolutionOption { Name = "4K (16:9)", Width = 3840, Height = 2160, Description = "3840x2160 - Ultra HD horizontal" });
-        ResolutionOptions.Add(new ResolutionOption { Name = "Instagram Square", Width = 1024, Height = 1024, Description = "1024x1024 - Perfect square format" });
-        
-        // Set TikTok as default
-        SelectedResolution = ResolutionOptions[0];
+        try
+        {
+            await _userSettingsService.UpdateSettingsAsync(settings =>
+            {
+                // Model configuration
+                settings.ModelPath = ModelPath;
+                settings.IsModelLoaded = IsModelLoaded;
+                
+                // Generation parameters
+                settings.LastPrompt = Prompt;
+                settings.DurationSeconds = DurationSeconds;
+                settings.Steps = Steps;
+                settings.GuidanceScale = GuidanceScale;
+                settings.Seed = Seed;
+                settings.Width = Width;
+                settings.Height = Height;
+                settings.Fps = Fps;
+                settings.SelectedResolutionName = SelectedResolution?.Name ?? "";
+                
+                // Application settings
+                settings.OutputDirectory = OutputDirectory;
+                
+                // Add current prompt to recent prompts
+                if (!string.IsNullOrWhiteSpace(Prompt))
+                {
+                    settings.AddRecentPrompt(Prompt);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving user settings");
+            // Don't throw - saving settings is not critical
+        }
     }
 
     [RelayCommand]

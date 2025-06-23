@@ -42,7 +42,7 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
             _logger.LogError(ex, "Python script or request file not found. Error: {ErrorMessage}", ex.Message);
             throw;
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             _logger.LogWarning("Python execution was cancelled. Model: {ModelPath}", request.ModelPath);
             throw;
@@ -187,7 +187,7 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
             ReportProgress(totalSteps, totalSteps, "Generation completed!");
             _logger.LogInformation("Python process execution completed successfully");
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             _logger.LogWarning("Python process execution was cancelled");
             

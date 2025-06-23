@@ -14,7 +14,27 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <Label Grid.Row="0" Content="LTX Video Generator" Style="{StaticResource HeaderLabel}"/>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Label Grid.Column="0" Content="LTX Video Generator" Style="{StaticResource HeaderLabel}"/>
+            
+            <!-- Info Button in Upper Right Corner -->
+            <Button Grid.Column="1" 
+                    Style="{StaticResource SecondaryButton}"
+                    Width="32"
+                    Height="32"
+                    ToolTip="Model Download Help - Click for detailed instructions on downloading the LTX Video model"
+                    Command="{Binding ShowModelDownloadHelpCommand}"
+                    Content="?"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    VerticalAlignment="Center"
+                    Margin="16,0,0,0"/>
+        </Grid>
         
         <!-- Main Content -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
@@ -37,8 +57,6 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="8"/>
-                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Grid.Column="0" 
                                      Text="{Binding ModelPath}" 
@@ -47,15 +65,6 @@
                                     Content="Browse..." 
                                     Style="{StaticResource SecondaryButton}"
                                     Command="{Binding BrowseModelPathCommand}"/>
-                            <Button Grid.Column="4" 
-                                    Style="{StaticResource SecondaryButton}"
-                                    Width="32"
-                                    Height="32"
-                                    ToolTip="Model Download Help"
-                                    Command="{Binding ShowModelDownloadHelpCommand}"
-                                    Content="?"
-                                    FontSize="16"
-                                    FontWeight="Bold"/>
                         </Grid>
                         
                         <Button Content="{Binding IsModelLoaded, Converter={x:Static local:Converters.BoolToLoadModelText}}" 
@@ -144,10 +153,12 @@
                             </StackPanel>
                         </Grid>
                         
-                        <Label Content="Seed (optional):" Style="{StaticResource FieldLabel}"/>
+                        <Label Content="Seed (optional):" Style="{StaticResource FieldLabel}"
+                               ToolTip="A seed is a number that controls randomness in video generation. Using the same seed with identical settings will produce the same result, making it useful for reproducible generations. Leave empty for random results, or enter a number (e.g., 12345) to ensure consistent output across multiple runs."/>
                         <TextBox Text="{Binding Seed}" 
                                  Style="{StaticResource ModernTextBox}"
-                                 Margin="0,0,0,16"/>
+                                 Margin="0,0,0,16"
+                                 ToolTip="A seed is a number that controls randomness in video generation. Using the same seed with identical settings will produce the same result, making it useful for reproducible generations. Leave empty for random results, or enter a number (e.g., 12345) to ensure consistent output across multiple runs."/>
                         
 
                         
@@ -175,7 +186,7 @@
                 </Border>
                 
                 <!-- Right Panel - Status and History -->
-                <Border Grid.Column="2" Style="{StaticResource Card}">
+                <Border Grid.Column="2" Style="{StaticResource SecondaryCard}">
                     <StackPanel>
                         <!-- Status Section -->
                         <Label Content="Status" Style="{StaticResource SectionLabel}"/>
@@ -209,16 +220,11 @@
                         
                         <ListBox ItemsSource="{Binding GenerationHistory}"
                                  MaxHeight="300"
-                                 Background="Transparent"
-                                 BorderThickness="0">
+                                 Style="{StaticResource ModernListBox}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{StaticResource SurfaceBrush}"
-                                            BorderBrush="#E2E8F0"
-                                            BorderThickness="1"
-                                            CornerRadius="4"
-                                            Padding="12"
-                                            Margin="0,0,0,8">
+                                    <Border Style="{StaticResource MetricCard}"
+                                            Margin="0,0,0,12">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Prompt}" 
                                                        FontWeight="SemiBold"

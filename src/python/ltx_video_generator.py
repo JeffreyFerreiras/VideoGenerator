@@ -117,19 +117,51 @@ def generate_video(request):
         
         # Load the LTX Video pipeline
         try:
-            if model_file:
-                # Load from single file
-                pipe = pipeline_class.from_single_file(
-                    model_file, 
-                    torch_dtype=torch.bfloat16
-                )
-            else:
-                # Load from directory
-                pipe = pipeline_class.from_pretrained(
-                    model_dir, 
-                    torch_dtype=torch.bfloat16,
-                    variant="fp16" if torch.cuda.is_available() else None
-                )
+            # Try different dtype options for better compatibility
+            try:
+                if model_file:
+                    # Load from single file
+                    pipe = pipeline_class.from_single_file(
+                        model_file, 
+                        torch_dtype=torch.float16
+                    )
+                    print("Loaded from single file with float16")
+                else:
+                    # Load from directory - try without variant first for compatibility
+                    pipe = pipeline_class.from_pretrained(
+                        model_dir, 
+                        torch_dtype=torch.float16
+                    )
+                    print("Loaded from directory with float16")
+            except Exception as dtype_error:
+                print(f"Error loading with float16: {dtype_error}", file=sys.stderr)
+                print("Trying with bfloat16...", file=sys.stderr)
+                try:
+                    if model_file:
+                        pipe = pipeline_class.from_single_file(
+                            model_file, 
+                            torch_dtype=torch.bfloat16
+                        )
+                    else:
+                        pipe = pipeline_class.from_pretrained(
+                            model_dir, 
+                            torch_dtype=torch.bfloat16
+                        )
+                    print("Loaded with bfloat16")
+                except Exception as bfloat_error:
+                    print(f"Error loading with bfloat16: {bfloat_error}", file=sys.stderr)
+                    print("Trying with float32...", file=sys.stderr)
+                    if model_file:
+                        pipe = pipeline_class.from_single_file(
+                            model_file, 
+                            torch_dtype=torch.float32
+                        )
+                    else:
+                        pipe = pipeline_class.from_pretrained(
+                            model_dir, 
+                            torch_dtype=torch.float32
+                        )
+                    print("Loaded with float32")
         except Exception as e:
             error_msg = str(e)
             print(f"Error loading pipeline: {error_msg}", file=sys.stderr)
@@ -289,6 +321,9 @@ def generate_video(request):
             # Note: callback parameter removed due to LTX pipeline compatibility
             # Progress will be tracked through intermediate status updates
             
+            print(f"Starting video generation with {num_frames} frames...")
+            sys.stdout.flush()
+            
             if use_image_to_video:
                 result = pipe(
                     image=image,
@@ -309,7 +344,51 @@ def generate_video(request):
                     num_frames=num_frames
                 )
             
-            video_frames = result.frames[0]
+            print("Video generation completed, extracting frames...")
+            sys.stdout.flush()
+            
+            # Check if result has frames - handle different result formats
+            video_frames = None
+            
+            if hasattr(result, 'frames') and result.frames:
+                if len(result.frames) > 0:
+                    video_frames = result.frames[0]
+                    print(f"Extracted frames from result.frames[0]: {len(video_frames) if video_frames else 0} frames")
+                else:
+                    print("result.frames exists but is empty", file=sys.stderr)
+            elif hasattr(result, 'videos') and result.videos:
+                if len(result.videos) > 0:
+                    video_frames = result.videos[0]
+                    print(f"Extracted frames from result.videos[0]: {len(video_frames) if video_frames else 0} frames")
+                else:
+                    print("result.videos exists but is empty", file=sys.stderr)
+            else:
+                print(f"Unexpected result format. Available attributes: {dir(result)}", file=sys.stderr)
+                # Try to find frame data in different attributes
+                for attr in ['frames', 'videos', 'images', 'outputs']:
+                    if hasattr(result, attr):
+                        attr_value = getattr(result, attr)
+                        print(f"Found attribute '{attr}' with type: {type(attr_value)}, length: {len(attr_value) if hasattr(attr_value, '__len__') else 'N/A'}", file=sys.stderr)
+                        if hasattr(attr_value, '__len__') and len(attr_value) > 0:
+                            video_frames = attr_value[0] if isinstance(attr_value, list) else attr_value
+                            print(f"Using frames from attribute '{attr}'", file=sys.stderr)
+                            break
+            
+            if video_frames is None or (hasattr(video_frames, '__len__') and len(video_frames) == 0):
+                print("Pipeline result details:", file=sys.stderr)
+                print(f"Result type: {type(result)}", file=sys.stderr)
+                print(f"Result attributes: {dir(result)}", file=sys.stderr)
+                for attr in dir(result):
+                    if not attr.startswith('_'):
+                        try:
+                            attr_value = getattr(result, attr)
+                            print(f"  {attr}: {type(attr_value)} = {attr_value if not callable(attr_value) else 'callable'}", file=sys.stderr)
+                        except:
+                            print(f"  {attr}: <unable to access>", file=sys.stderr)
+                raise RuntimeError("Pipeline returned empty result - no frames generated. Check the model parameters and prompt.")
+            
+            print(f"Successfully generated {len(video_frames)} video frames")
+            sys.stdout.flush()
             
         except Exception as e:
             print(f"Error during video generation: {e}", file=sys.stderr)

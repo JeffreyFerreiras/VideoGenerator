@@ -3,7 +3,9 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
+using VideoGenerator.Models;
 using VideoGenerator.Services;
+using VideoGenerator.Services.Abstractions;
 using VideoGenerator.UI.ViewModels;
 
 namespace VideoGenerator.UI.Tests
@@ -13,6 +15,7 @@ namespace VideoGenerator.UI.Tests
     {
         private IVideoGenerationService _service = null!;
         private ILogger<MainWindowViewModel> _logger = null!;
+        private IUserSettingsService _userSettingsService = null!;
         private MainWindowViewModel _viewModel = null!;
 
         [SetUp]
@@ -20,7 +23,12 @@ namespace VideoGenerator.UI.Tests
         {
             _service = Substitute.For<IVideoGenerationService>();
             _logger = Substitute.For<ILogger<MainWindowViewModel>>();
-            _viewModel = new MainWindowViewModel(_service, _logger);
+            _userSettingsService = Substitute.For<IUserSettingsService>();
+            
+            // Setup default user settings
+            _userSettingsService.LoadSettingsAsync().Returns(Task.FromResult(new UserSettings()));
+            
+            _viewModel = new MainWindowViewModel(_service, _logger, _userSettingsService);
         }
 
         [Test]
@@ -40,8 +48,12 @@ namespace VideoGenerator.UI.Tests
             // Before loading model
             _viewModel.GenerateVideoCommand.CanExecute(null).Should().BeFalse();
 
-            // Simulate model loaded
+            // Simulate model loaded but no prompt
             _viewModel.IsModelLoaded = true;
+            _viewModel.GenerateVideoCommand.CanExecute(null).Should().BeFalse();
+            
+            // With prompt as well
+            _viewModel.Prompt = "A beautiful sunset";
             _viewModel.GenerateVideoCommand.CanExecute(null).Should().BeTrue();
         }
     }

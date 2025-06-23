@@ -23,6 +23,7 @@ public static class HostBuilderExtensions
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IFileDialogService, FileDialogService>();
             services.AddSingleton<IVideoGenerationService, PythonVideoGenerationService>();
+            services.AddSingleton<IUserSettingsService, UserSettingsService>();
             services.AddTransient<MainWindowViewModel>();
         });
     }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using VideoGenerator.Services;
 using VideoGenerator.UI.ViewModels;
 using VideoGenerator.UI.Services;
+using VideoGenerator.Services.Abstractions;
 
 namespace VideoGenerator.UI;
 
@@ -16,8 +17,11 @@ public static class HostBuilderExtensions
         return builder.ConfigureServices((context, services) =>
         {
             services.AddLogging();
-            services.AddSingleton<Services.IDialogService, Services.DialogService>();
-            services.AddSingleton<Services.IFileDialogService, Services.FileDialogService>();
+            services.AddSingleton<IModelManager, ModelManager>();
+            services.AddSingleton<IFileManager, FileManager>();
+            services.AddSingleton<IPythonExecutor, PythonExecutor>();
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IFileDialogService, FileDialogService>();
             services.AddSingleton<IVideoGenerationService, PythonVideoGenerationService>();
             services.AddTransient<MainWindowViewModel>();
         });

@@ -18,7 +18,10 @@ public class BoolToVisibilityValueConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
+        {
             return boolValue ? Visibility.Visible : Visibility.Collapsed;
+        }
+
         return Visibility.Collapsed;
     }
 
@@ -33,14 +36,20 @@ public class InverseBoolValueConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
+        {
             return !boolValue;
+        }
+
         return true;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
+        {
             return !boolValue;
+        }
+
         return false;
     }
 }
@@ -63,7 +72,10 @@ public class InverseBoolToVisibilityValueConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
+        {
             return boolValue ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         return Visibility.Visible;
     }
 
@@ -78,7 +90,10 @@ public class BoolToLoadModelTextConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isLoaded)
+        {
             return isLoaded ? "Model Loaded ✓" : "Load Model";
+        }
+
         return "Load Model";
     }
 

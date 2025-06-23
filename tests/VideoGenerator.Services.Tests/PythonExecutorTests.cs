@@ -146,7 +146,9 @@ public class PythonExecutorTests
         finally
         {
             if (File.Exists(filePath))
+            {
                 File.Delete(filePath);
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ public partial class App : Application
                 .ConfigureServices((context, services) =>
                 {
                     // Register services
+                    services.AddLogging();
                     services.AddSingleton<IVideoGenerationService, PythonVideoGenerationService>();
                     
                     // Register ViewModels

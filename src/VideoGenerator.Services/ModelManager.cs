@@ -25,15 +25,16 @@ public class ModelManager : IModelManager
 
     public Task<bool> LoadAsync(string modelPath)
     {
-        if (string.IsNullOrWhiteSpace(modelPath))
-            throw new ArgumentException("Model path cannot be null or empty", nameof(modelPath));
+        ArgumentException.ThrowIfNullOrWhiteSpace(modelPath);
 
         lock (_lock)
         {
             try
             {
                 if (!IsValidModelPath(modelPath))
+                {
                     return Task.FromResult(false);
+                }
 
                 _modelPath = modelPath;
                 _isLoaded = true;

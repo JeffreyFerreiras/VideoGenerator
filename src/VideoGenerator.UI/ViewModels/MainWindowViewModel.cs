@@ -124,7 +124,9 @@ public partial class MainWindowViewModel : ObservableObject
             MessageBoxImage.Question);
 
         if (result == MessageBoxResult.Cancel)
+        {
             return;
+        }
 
         if (result == MessageBoxResult.Yes)
         {

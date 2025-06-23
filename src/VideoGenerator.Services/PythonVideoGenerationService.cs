@@ -35,9 +35,12 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
 
     public async Task<VideoGenerationResult> GenerateVideoAsync(VideoGenerationRequest request, CancellationToken cancellationToken = default)
     {
-        if (request == null) throw new ArgumentNullException(nameof(request));
-        if (!await _modelManager.IsLoadedAsync()) 
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!await _modelManager.IsLoadedAsync())
+        {
             return VideoGenerationResult.Failure("Model is not loaded. Please load the model first.");
+        }
 
         var stopwatch = Stopwatch.StartNew();
         
@@ -85,7 +88,9 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
     private VideoGenerationResult CreateSuccessResult(string outputPath, VideoGenerationRequest request, TimeSpan elapsed)
     {
         if (!File.Exists(outputPath))
+        {
             return VideoGenerationResult.Failure("Generated video file not found");
+        }
 
         var fileInfo = new FileInfo(outputPath);
         _logger.LogInformation("Video generation completed successfully. File size: {FileSize} bytes", fileInfo.Length);
@@ -101,6 +106,8 @@ public class PythonVideoGenerationService : IVideoGenerationService, IDisposable
     public void Dispose()
     {
         if (_pythonExecutor is IDisposable disposable)
+        {
             disposable.Dispose();
+        }
     }
 }

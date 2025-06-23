@@ -46,7 +46,9 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
     private void ValidateScriptExists(string scriptPath)
     {
         if (!File.Exists(scriptPath))
+        {
             throw new FileNotFoundException($"Python script not found: {scriptPath}");
+        }
     }
 
     private async Task<string> CreateRequestFileAsync(PythonGenerationRequest request, CancellationToken cancellationToken)
@@ -103,8 +105,11 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
             while (!process.HasExited && !cancellationToken.IsCancellationRequested)
             {
                 var line = await process.StandardOutput.ReadLineAsync();
-                if (line == null) break;
-                
+                if (line == null)
+                {
+                    break;
+                }
+
                 ParseProgressFromOutput(line, totalSteps);
             }
         }
@@ -130,8 +135,11 @@ public class PythonExecutor(ILogger<PythonExecutor> logger) : IPythonExecutor, I
     {
         currentStep = total = 0;
         
-        if (!line.Contains("Step") || !line.Contains("of")) return false;
-        
+        if (!line.Contains("Step") || !line.Contains("of"))
+        {
+            return false;
+        }
+
         var parts = line.Split(' ');
         for (int i = 0; i < parts.Length - 3; i++)
         {

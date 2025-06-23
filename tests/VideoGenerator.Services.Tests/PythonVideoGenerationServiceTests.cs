@@ -132,7 +132,9 @@ public class PythonVideoGenerationServiceTests
         finally
         {
             if (File.Exists(outputPath))
+            {
                 File.Delete(outputPath);
+            }
         }
     }
 
